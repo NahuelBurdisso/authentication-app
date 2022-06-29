@@ -1,8 +1,13 @@
 import React from "react";
-import { getSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
-function HomePage(props) {
-  const { user } = props;
+function HomePage() {
+  const { data: session, status } = useSession();
+  const isLoading = status === "loading";
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div>
@@ -19,15 +24,5 @@ function HomePage(props) {
     </div>
   );
 }
-
-export const getServerSideProps = async (context) => {
-  const session = await getSession(context);
-  const user = session.user;
-  return {
-    props: {
-      user,
-    },
-  };
-};
 
 export default HomePage;
