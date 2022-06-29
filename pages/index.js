@@ -1,22 +1,24 @@
-import React from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import { getSession, signOut } from "next-auth/react";
 
-function HomePage() {
-  const router = useRouter();
-  const { data: session, status } = useSession();
+export const getServerSideProps = async (context) => {
+  const session = await getSession(context);
 
-  const isLoading = status === "loading";
-  const unAuthenticated = status === "unauthenticated";
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
+  return {
+    props: {
+      session,
+    },
+  };
+};
 
-  if (unAuthenticated) {
-    router.push("/login");
-  }
-
+function HomePage({ session }) {
   return (
     <div>
       <h1>Home</h1>
@@ -27,8 +29,10 @@ function HomePage() {
           <img src={session.user.image} alt="avatar" />
         </>
       ) : (
-        <p>You are not logged in.</p>
+        <p>Skeleton.</p>
       )}
+
+      <button onClick={() => signOut()}>Sign out</button>
     </div>
   );
 }
